@@ -16,6 +16,7 @@ if __name__ == '__main__':
         min_size=(250, 300),
         frameless=True,
         easy_drag=True,
-        background_color='#0b0b12'
+        background_color='#0b0b12',
+        on_top=True
     )
     webview.start()
