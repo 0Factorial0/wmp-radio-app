@@ -1,0 +1,5 @@
+pywebview
+pythonnet; sys_platform == 'win32'
+pyobjc-core; sys_platform == 'darwin'
+pyobjc-framework-Cocoa; sys_platform == 'darwin'
+pyobjc-framework-WebKit; sys_platform == 'darwin'

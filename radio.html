@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WMP Battery - Embeddable Block</title>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 250px;
+                height: 300px;
+                overflow: hidden;
+                background-color: #0b0b12;
+                box-sizing: border-box;
+            }
+            ::-webkit-scrollbar {
+                display: none;
+            }
+            *, *:before, *:after {
+                box-sizing: inherit;
+            }
+            body {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                border: 1px solid #0b0b12;
+            }
+            .embed-block {
+                background: radial-gradient(circle at 50% 0%, #10152f 0%, #080914 38%, #030308 100%);
+                color: #f4f7ff;
+                margin: 0;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-family: monospace;
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            .embed-block h1 { 
+                margin: 0 0 5px 0;
+                font-size: 14px;
+                color: #61ffda;
+                text-shadow: 0 0 8px currentColor, 0 0 22px currentColor;
+                letter-spacing: 2px;
+            }
+            .embed-block .main-container {
+                border: 2px solid #61ffda;
+                margin-bottom: 10px;
+                box-shadow: 0 0 15px rgba(97,255,218,.22), 0 0 45px rgba(139,92,246,.10);
+                background: linear-gradient(135deg, rgba(97,255,218,.12), rgba(139,92,246,.10), rgba(255,70,180,.08));
+                border-radius: 0;
+            }
+            .embed-block canvas#mainCvs {
+                width: 160px;
+                height: 160px;
+                background: #02030a;
+                display: block;
+                image-rendering: pixelated;
+            }
+            .embed-block .radio-box {
+                margin-bottom: 10px;
+                background: linear-gradient(145deg, #111426, #080914);
+                border: 1px solid #8b5cf6;
+                padding: 6px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                box-shadow: 0 0 12px rgba(139,92,246,.28), inset 0 0 12px rgba(97,255,218,.06);
+                border-radius: 0;
+                width: 100%;
+            }
+            .embed-block .radio-box select, .embed-block .radio-box audio {
+                background: #02030a;
+                color: #61ffda;
+                font-family: monospace;
+                font-size: 10px;
+                outline: none;
+            }
+            .embed-block .radio-box select {
+                border: 1px solid #61ffda;
+                border-radius: 0;
+                width: 100%;
+            }
+            .embed-block .transition-info {
+                margin-top: 0;
+                margin-bottom: 5px;
+                min-height: 14px;
+                color: #61ffda;
+                font-size: 9px;
+                letter-spacing: 1px;
+                text-align: center;
+                text-shadow: 0 0 6px currentColor;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="embed-block">
+            <div class="radio-box">
+                <select id="radioSelect" onchange="changeStation(this)">
+                    <option value="https://icast.connectmedia.hu/5202/live.mp3">Lounge FM</option>
+                    <option value="https://jazzlounge.ice.infomaniak.ch/jazzlounge-high.mp3">Jazz Radio Lounge</option>
+                    <option value="https://stream.nucrooze.com/listen/nucrooze/radio.mp3">NUCROOZE Radio</option>
+                    <option value="https://radio.streemlion.com:3715/stream">Arctic Outpost AM1270</option>
+                    <option value="http://strm112.1.fm/80s_90s_mobile_mp3">1.FM 80s & 90s</option>
+                    <option value="http://strm112.1.fm/magic80_mobile_mp3">1.FM Magic 80s</option>
+                    <option value="https://icecast.radiofrance.fr/mouv-midfi.mp3">Mouv' France</option>
+                    <option value="http://jazzblues.ice.infomaniak.ch/jazzblues-high.mp3">Jazz Radio Blues</option>
+                    <option value="https://antenaone.crossradio.com.br/stream">Antena 1 Florianópolis</option>
+                    <option value="https://icecast.omroep.nl/radio2-bb-mp3">NPO Radio 2</option>
+                    <option value="https://icecast.omroep.nl/radio5-bb-mp3">NPO Radio 5</option>
+                    <option value="https://jazz-wr04.ice.infomaniak.ch/jazz-wr04-128.mp3">Jazz Radio Electro Swing</option>
+                    <option value="https://jazz-wr08.ice.infomaniak.ch/jazz-wr08-128.mp3">Jazz Radio Groove</option>
+                    <option value="https://media-ice.musicradio.com/SmoothUKMP3">Smooth Radio UK</option>
+                    <option value="https://centova5.transmissaodigital.com:20104/live">Bossa Jazz Brasil</option>
+                    <option value="https://strm112.1.fm/top40_mobile_mp3">1.FM Absolute Top 40</option>
+                    <option value="https://strm112.1.fm/90s_mobile_mp3">1.FM Absolute 90s</option>
+                    <option value="https://strm112.1.fm/hits2000_mobile_mp3">1.FM Top Hits 2000</option>
+                    <option value="https://strm112.1.fm/allmixedup_mobile_mp3">1.FM All Times Hits</option>
+                    <option value="http://strm112.1.fm/trance_mobile_mp3">1.FM Absolute Trance</option>
+                    <option value="http://strm112.1.fm/deephouse_mobile_mp3">1.FM Deep House</option>
+                    <option value="http://strm112.1.fm/deeptech_mobile_mp3">1.FM Deep Techno / Deep House</option>
+                    <option value="http://strm112.1.fm/psytrance_mobile_mp3">1.FM PsyTrance</option>
+                    <option value="https://jenny.torontocast.com:2000/stream/J1GOLD">J1 Radio Gold</option>
+                    <option value="https://relay0.r-a-d.io/main.mp3">R/a/dio</option>
+                    <option value="https://streams.radiobob.de/bob-alternative/mp3-192/streams.radiobob.de/">Radio BOB Alternative Rock</option>
+                    <option value="https://streams.radiobob.de/bob-grunge/mp3-192/streams.radiobob.de/">Radio BOB Grunge</option>
+                    <option value="https://streams.radiobob.de/bob-punk/mp3-192/streams.radiobob.de/">Radio BOB Punk</option>
+                    <option value="https://streams.radiobob.de/bob-80srock/mp3-192/streams.radiobob.de/">Radio BOB 80s Rock</option>
+                    <option value="https://streams.radiobob.de/bob-90srock/mp3-192/streams.radiobob.de/">Radio BOB 90s Rock</option>
+                    <option value="https://stream.liferadio.at/clrock/mp3-192/app/">Life Radio Classic Rock</option>
+                    <option value="http://51.255.8.139:8738/stream">Metal Live Radio</option>
+                    <option value="https://streamer.radio.co/s0635c8b0d/listen">Dr Dick's Dub Shack</option>
+                    <option value="https://stream.radio-calico.com/calico.mp3">Radio Calico</option>
+                    <option value="http://strm112.1.fm/bossanova_mobile_mp3">1.FM Bossa Nova</option>
+                    <option value="https://icecast.radiofrance.fr/fip-midfi.mp3">FIP France</option>
+                    <option value="https://icecast.radiofrance.fr/fiprock-midfi.mp3">FIP Rock</option>
+                    <option value="https://icecast.radiofrance.fr/fipjazz-midfi.mp3">FIP Jazz</option>
+                    <option value="https://icecast.radiofrance.fr/fipworld-midfi.mp3">FIP World</option>
+                    <option value="https://icecast.radiofrance.fr/fipgroove-midfi.mp3">FIP Groove</option>
+                    <option value="https://icecast.radiofrance.fr/fipnouveautes-midfi.mp3">FIP Nouveautes</option>
+                    <option value="https://icecast.radiofrance.fr/francemusique-midfi.mp3">France Musique</option>
+                    <option value="https://wdr-wdr4-live.icecast.wdr.de/wdr/wdr4/live/mp3/128/stream.mp3">WDR 4</option>
+                    <option value="https://media-ice.musicradio.com/ClassicFMMP3">Classic FM UK</option>
+                    <option value="https://media-ice.musicradio.com/LBCMP3">LBC UK</option>
+                    <option value="https://stream.srg-ssr.ch/m4a/rsf/def_128.m4a">Option Musique</option>
+                    <option value="https://streams.fluxfm.de/jazzschwarz/mp3-128/streams.fluxfm.de/">Jazzradio Schwarzenstein</option>
+                    <option value="https://streams.fluxfm.de/jazzschwarz/mp3-320/streams.fluxfm.de/">Jazzradio Schwarzenstein 320</option>
+                    <option value="https://jazzradio.ice.infomaniak.ch/frequencejazz-high.mp3">Jazz Radio Nationale</option>
+                    <option value="http://0n-smoothjazz.radionetz.de/0n-smoothjazz.mp3">0N Smooth Jazz</option>
+                    <option value="http://strm112.1.fm/club_mobile_mp3">1.FM Club</option>
+                    <option value="http://strm112.1.fm/dance_mobile_mp3">1.FM Dance</option>
+                    <option value="http://strm112.1.fm/dubstep_mobile_mp3">1.FM Dubstep</option>
+                    <option value="http://strm112.1.fm/reggaeton_mobile_mp3">1.FM Reggaeton</option>
+                    <option value="http://strm112.1.fm/ccountry_mobile_mp3">1.FM Classic Country</option>
+                    <option value="http://strm112.1.fm/country_mobile_mp3">1.FM Country</option>
+                    <option value="http://strm112.1.fm/classical_mobile_mp3">1.FM Classical</option>
+                    <option value="http://stream.klassikradio.de/opera/mp3-192/www.klassikradio.de/">Klassik Radio Opera</option>
+                    <option value="http://stream.klassikradio.de/piano/mp3-192/www.klassikradio.de/">Klassik Radio Piano</option>
+                    <option value="http://stream.klassikradio.de/barock/mp3-192/www.klassikradio.de/">Klassik Radio Baroque</option>
+                    <option value="http://strm112.1.fm/slowjamz_mobile_mp3">1.FM Slow Jamz</option>
+                    <option value="http://strm112.1.fm/funkyexpress_mobile_mp3">1.FM Funky Express</option>
+                    <option value="http://strm112.1.fm/oldschool_mobile_mp3">1.FM Adult Urban Hits</option>
+                    <option value="http://strm112.1.fm/samba_mobile_mp3">1.FM Samba Hits Brazil</option>
+                    <option value="http://strm112.1.fm/sambarock_mobile_mp3">1.FM Samba Rock</option>
+                    <option value="http://strm112.1.fm/sertanejo_mobile_mp3">1.FM Sertanejo</option>
+                    <option value="https://stream.liferadio.at/80er/mp3-192/app/">Life Radio 80s</option>
+                    <option value="http://strm112.1.fm/moviesoundtracks_mobile_mp3">1.FM Movie Soundtracks</option>
+                    <option value="http://stream.klassikradio.de/movie/mp3-192/www.klassikradio.de/">Klassik Radio Movie</option>
+                    <option value="https://stream.liferadio.at/chillout/mp3-192/app/">Life Radio Chillout</option>
+                    <option value="http://strm112.1.fm/costadelmarchillout_mobile_mp3">1.FM Costa Del Mar Chillout</option>
+                    <option value="http://strm112.1.fm/ibizachill_mobile_mp3">1.FM Ibiza Chill</option>
+                    <option value="https://streams.radiobob.de/bob-blues/mp3-192/streams.radiobob.de/">Radio BOB Blues</option>
+                    <option value="http://strm112.1.fm/gospel_mobile_mp3">1.FM Urban Gospel</option>
+                    <option value="http://strm112.1.fm/x_mobile_mp3">1.FM Alternative Rock</option>
+                    <option value="http://stream.fr.morow.com:8080/morow_hi.aacp">Morow Progressive Rock</option>
+                </select>
+                <audio id="radioPlayer" controls crossorigin="anonymous" src="https://icast.connectmedia.hu/5202/live.mp3" style="width: 100%; height: 22px;"></audio>
+            </div>
+            <h1 id="mainTitle"></h1>
+            <div class="main-container">
+                <canvas id="mainCvs" width="160" height="160"></canvas>
+            </div>
+            <div class="transition-info" id="transitionInfo"></div>
+        </div>
+        <script>
+            let audioCtx, analyser, audioDataArray;
+            let audioInitialized = false;
+            function initAudio() {
+                if (audioInitialized) return;
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 256;
+                    const player = document.getElementById('radioPlayer');
+                    const source = audioCtx.createMediaElementSource(player);
+                    source.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+                    audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+                    audioInitialized = true;
+                } catch (e) {
+                    console.log("Web Audio API CORS:", e);
+                }
+            }
+            document.getElementById('radioPlayer').addEventListener('play', () => {
+                if (!audioInitialized) {
+                    initAudio();
+                } else if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            });
+            function changeStation(select) {
+                const player = document.getElementById('radioPlayer');
+                player.src = select.value;
+                player.play().catch(e => console.log("Player Error:", e));
+            }
+            const SimplexNoise = function() {
+                var F3 = 1.0/3.0, G3 = 1.0/6.0;
+                var p = new Uint8Array(256);
+                for (var i=0; i<256; i++) p[i] = Math.floor(Math.random()*256);
+                var perm = new Uint8Array(512);
+                for (var i=0; i<512; i++) perm[i] = p[i & 255];
+                function noise(xin, yin, zin) {
+                    var s = (xin+yin+zin)*F3;
+                    var i = Math.floor(xin+s), j = Math.floor(yin+s), k = Math.floor(zin+s);
+                    var t = (i+j+k)*G3;
+                    var x0 = xin-(i-t), y0 = yin-(j-t), z0 = zin-(k-t);
+                    var i1=0, j1=0, k1=0, i2=0, j2=0, k2=0;
+                    if(x0>=y0) {
+                        if(y0>=z0) { i1=1; i2=1; j2=1; }
+                        else if(x0>=z0) { i1=1; i2=1; k2=1; }
+                        else { k1=1; i2=1; k2=1; }
+                    } else {
+                        if(y0<z0) { k1=1; j2=1; k2=1; }
+                        else if(x0<z0) { j1=1; j2=1; k2=1; }
+                        else { j1=1; i2=1; j2=1; }
+                    }
+                    var x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+                    var x2 = x0 - i2 + 2*G3, y2 = y0 - j2 + 2*G3, z2 = z0 - k2 + 2*G3;
+                    var x3 = x0 - 1 + 3*G3, y3 = y0 - 1 + 3*G3, z3 = z0 - 1 + 3*G3;
+                    var t0 = 0.6 - x0*x0 - y0*y0 - z0*z0, n0 = t0<0 ? 0 : Math.pow(t0, 4)*(x0+y0+z0);
+                    var t1 = 0.6 - x1*x1 - y1*y1 - z1*z1, n1 = t1<0 ? 0 : Math.pow(t1, 4)*(x1+y1+z1);
+                    var t2 = 0.6 - x2*x2 - y2*y2 - z2*z2, n2 = t2<0 ? 0 : Math.pow(t2, 4)*(x2+y2+z2);
+                    var t3 = 0.6 - x3*x3 - y3*y3 - z3*z3, n3 = t3<0 ? 0 : Math.pow(t3, 4)*(x3+y3+z3);
+                    return 32.0*(n0 + n1 + n2 + n3);
+                }
+                return {
+                    fbm: function(x, y, z, octaves = 3) {
+                        let value = 0.0, amplitude = 0.5;
+                        for (let i = 0; i < octaves; i++) {
+                            value += amplitude * noise(x, y, z);
+                            x *= 2.0; y *= 2.0; z *= 2.0;
+                            amplitude *= 0.5;
+                        }
+                        return value;
+                    }
+                };
+            };
+            const simplex = SimplexNoise();
+            const mainCanvas = document.getElementById('mainCvs');
+            const mainCtx = mainCanvas.getContext('2d');
+            const modeNames = [
+                "1. VORTEX", "2. AXIAL TUNNEL", "3. LIQUID PLASMA", "4. PULSAR", 
+                "5. MOVING SPIRAL", "6. FROSTED GLASS", "7. 3D ORBITAL", "8. FINE DETAILS", 
+                "9. HYPERDRIVE", "10. WAVE INTERFERENCE", "11. CYBER GRID", "12. ELECTRIC PLASMA", 
+                "13. QUANTUM MATRIX", "14. NEON FRAME", "15. PRISMATIC", "16. VOID RIFT", 
+                "17. CHROMATIC", "18. PLASMA STORM", "19. STRATOSFER", "20. SOLAR FLARE", 
+                "21. NEURAL PULSE", "22. GLITCH MATRIX", "23. EVENT HORIZON", "24. CHROMA NOISE", 
+                "25. FRACTAL FLUID", "26. PSYCHEDELIC", "27. PLASMA VORTEX", "28. NEON TURBULENCE", 
+                "29. QUANTUM SHIFT", "30. MULTICOLOR", "31. SPECTRAL DRIFT", "32. VORTEX SECUNDUS", 
+                "33. DEEP TUNNEL", "34. MAGMA CORE", "35. STELLAR PULSE", "36. HELIX SPIRAL", 
+                "37. CRYSTAL MATRIX", "38. ORBITAL RING", "39. FRACTAL WEB", "40. WARP TUNNEL", 
+                "41. RESONANCE", "42. MATRIX GRID", "43. ION PLASMA", "44. NEXUS CORE", 
+                "45. SHARD FIELD", "46. ABYSS RIFT"
+            ];
+            const TOTAL_MODES = modeNames.length;
+            const mainImgData = mainCtx.createImageData(160, 160);
+            const mainBuffer = new Float32Array(160 * 160 * 3);
+            let globalTime = 0;
+            let rotationAngle = 0;
+            let currentBass = 0;
+            let currentMainMode = 0;
+            let nextMainMode = Math.floor(Math.random() * TOTAL_MODES);
+            let transitionProgress = 1.0;
+            let transitionDuration = 1.0;
+            let transitionScheduledAt = performance.now();
+            let transitionDelay = 14;
+            function getEffectName(index) {
+                return modeNames[index].replace(/^\d+\.\s*/, "");
+            }
+            function updateTransitionInfo(currentTime) {
+                const fromName = getEffectName(currentMainMode);
+                const toName = getEffectName(nextMainMode);
+                if (transitionProgress < 1.0) {
+                    const elapsed = transitionProgress * transitionDuration;
+                    const remaining = Math.max(0, transitionDuration - elapsed);
+                    document.getElementById('transitionInfo').textContent = `${fromName} -> ${toName} (${remaining.toFixed(1)}s)`;
+                } else {
+                    const remaining = Math.max(0, (transitionScheduledAt + transitionDelay * 1000 - currentTime) / 1000);
+                    document.getElementById('transitionInfo').textContent = `${fromName} -> ${toName} (${remaining.toFixed(1)}s)`;
+                }
+            }
+            function scheduleNextTransition() {
+                let randomSeconds = 7 + Math.random() * 7;
+                transitionDelay = randomSeconds;
+                transitionScheduledAt = performance.now();
+                setTimeout(() => {
+                    currentMainMode = nextMainMode;
+                    nextMainMode = Math.floor(Math.random() * TOTAL_MODES);
+                    transitionProgress = 0.0;
+                    transitionDuration = 2.0 + Math.random() * 1.5; 
+                    scheduleNextTransition();
+                }, randomSeconds * 1000);
+            }
+            scheduleNextTransition();
+            function getMaskValue(mode, dx, dy, dist, angle) {
+                if (mode === 6 || mode === 37 || mode === 38) {
+                    let torusRad = 0.4 - currentBass * 0.01;
+                    let ringDist = Math.abs(dist - torusRad);
+                    let wave = Math.sin(angle * 9.0 + globalTime * 2.5) * 0.08;
+                    let val = Math.max(0, 1.0 - (ringDist + wave) * 4.0);
+                    return val > 0.05 ? 1.0 : val / 0.05;
+                }
+                if (mode === 22 || mode === 45 || mode === 46) {
+                    let eventDist = Math.abs(dist - (0.25 - currentBass * 0.01));
+                    let spiralWave = Math.sin(angle * 6.5 + 1.0 / (eventDist + 0.05) - globalTime * 2.0);
+                    let val = Math.max(0, spiralWave) * (1.4 - dist);
+                    return val > 0.15 ? 1.0 : val / 0.15;
+                }
+                return 1.0;
+            }
+            function getDensity(mode, dx, dy, dist, angle) {
+                let density = 0;
+                let t = globalTime * 1.2;
+                let modDist = dist * (1.0 - currentBass * 0.04);
+                switch(mode) {
+                    case 0: {
+                        let u = Math.cos(angle + rotationAngle * 1.5 + 2.0 / (modDist + 0.1)) * modDist;
+                        let v = Math.sin(angle + rotationAngle * 1.5 + 2.0 / (modDist + 0.1)) * modDist;
+                        density = (simplex.fbm(u * 3.0, v * 3.0, t * 0.4) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 1: {
+                        let tunnelDepth = (1.0 / (modDist + 0.05)) + t * 2.0;
+                        let u = Math.cos(angle * 4) * 0.5 + tunnelDepth * 0.15;
+                        let v = Math.sin(angle * 4) * 0.5 + tunnelDepth * 0.15;
+                        density = (simplex.fbm(u * 3.0, v * 3.0, t * 0.4) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 2: {
+                        let u = dx + Math.sin(dy * 5.0 + t * 1.5) * (0.4 + currentBass * 0.08);
+                        let v = dy + Math.cos(dx * 5.0 + t * 1.5) * (0.4 + currentBass * 0.08);
+                        density = (simplex.fbm(u * 3.0, v * 3.0, t * 0.4) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 3: {
+                        let pulsarRad = modDist + Math.sin(angle * 7.0 + t * 2.0) * (0.2 + currentBass * 0.05);
+                        let u = Math.cos(angle + rotationAngle) * pulsarRad;
+                        let v = Math.sin(angle + rotationAngle) * pulsarRad;
+                        density = (simplex.fbm(u * 3.0, v * 3.0, t * 0.4) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 4: {
+                        let pathX = Math.sin(t * 0.5) * 0.6;
+                        let pathY = Math.cos(t * 0.4) * 0.6;
+                        let pdx = dx - pathX;
+                        let pdy = dy - pathY;
+                        let pDist = Math.sqrt(pdx * pdx + pdy * pdy);
+                        let pAngle = Math.atan2(pdy, pdx);
+                        let u = Math.cos(pAngle + pDist * 3.5 - t * 1.5) * pDist;
+                        let v = Math.sin(pAngle + pDist * 3.5 - t * 1.5) * pDist;
+                        density = (simplex.fbm(u * 3.2, v * 3.2, t * 0.4) + 0.5) * (1.5 - pDist);
+                        break;
+                    }
+                    case 5: {
+                        let refrX = dx + Math.sin(dy * 12.0 + t * 2.0) * 0.05;
+                        let refrY = dy + Math.cos(dx * 12.0 + t * 2.0) * 0.05;
+                        let n = simplex.fbm(refrX * 4.5, refrY * 4.5, t * 0.4, 3);
+                        density = (Math.sin(n * (11.0 + currentBass * 1.5)) * 0.5 + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 6: {
+                        let torusRad = 0.3 + (Math.sin(globalTime * 1.0) * 0.5 + 0.5) * 0.15 - currentBass * 0.03;
+                        let ringDist = Math.abs(modDist - torusRad);
+                        let wave = Math.sin(angle * 9.0 + t * 2.5) * 0.08;
+                        density = Math.max(0, 1.0 - (ringDist + wave) * 4.0);
+                        break;
+                    }
+                    case 7: {
+                        let u = dx, v = dy;
+                        for(let i=0; i<2; i++) {
+                            let nextU = u*u - v*v + dx * 0.4;
+                            let nextV = 2.0*u*v + dy * 0.4;
+                            u = nextU; v = nextV;
+                        }
+                        density = (simplex.fbm(u * 2.0, v * 2.0, t * 0.3, 3) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 8: {
+                        let tunnelSpeed = t * 2.5;
+                        let z = (1.0 / (modDist + 0.02)) - tunnelSpeed;
+                        let ray = Math.sin(angle * 14.0 + z * 0.5);
+                        density = Math.max(0, ray) * Math.min(1.0, modDist * 1.5);
+                        break;
+                    }
+                    case 9: {
+                        let w1 = Math.sin(modDist * 20.0 - t * 3.0);
+                        let w2 = Math.sin((dx * 9.0 + dy * 9.0) + t * 2.5);
+                        let w3 = Math.cos(angle * 7.0 - t * 2.0);
+                        density = ((w1 + w2 + w3) / 3.0 + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 10: {
+                        let projY = dy / (modDist + 0.2);
+                        let projX = dx / (modDist + 0.2);
+                        let grid = Math.sin(projX * 16.0 + t * 2.0) * Math.sin(projY * 16.0 + t * 2.0);
+                        density = Math.pow(Math.max(0, grid), 2.0) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 11: {
+                        let n1 = simplex.fbm(dx * 5.5, dy * 5.5, t * 1.5, 3);
+                        let arc = Math.abs(Math.sin((n1 + angle) * 9.0));
+                        density = Math.pow(1.0 - arc, 4.0) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 12: {
+                        let qx = Math.floor(dx * 12) / 12;
+                        let qy = Math.floor(dy * 12) / 12;
+                        density = (simplex.fbm(qx * 3.2, qy * 3.2, t * 0.6) + 0.5) * (1.1 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 13: {
+                        let cx = Math.abs(dx * 5) % 1.0 - 0.5;
+                        let cy = Math.abs(dy * 5) % 1.0 - 0.5;
+                        density = (1.0 - Math.sqrt(cx*cx + cy*cy)) * (Math.sin(t * 1.2 + modDist * 5.5) * 0.5 + 0.5);
+                        break;
+                    }
+                    case 14: {
+                        let shard = Math.sin(dx * 20.0 + t * 1.5) * Math.cos(dy * 20.0 - t * 1.5);
+                        density = Math.abs(shard) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 15: {
+                        let animRadius = 0.2 + (Math.sin(globalTime * 1.2) * 0.5 + 0.5) * 0.15;
+                        let voidDist = Math.abs(modDist - animRadius) + Math.sin(angle * 6 + t * 1.5) * 0.15;
+                        density = 1.0 / (voidDist * 12.0 + 0.4);
+                        break;
+                    }
+                    case 16: {
+                        let wave = Math.sin(modDist * 30.0 - t * 4.0);
+                        density = (wave > 0 ? wave : 0) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 17: {
+                        let storm = simplex.fbm(dx * 6.0 + t * 1.0, dy * 6.0 - t * 1.0, t * 0.4, 4);
+                        density = Math.abs(storm) * 2.2 * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 18: {
+                        let strato = Math.sin(dx * 5.5 + Math.cos(dy * 5.5 + t * 1.5)) * 0.5 + 0.5;
+                        density = strato * (1.4 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 19: {
+                        let flare = Math.pow(Math.max(0, Math.cos(angle * 4.5 + t * 2.0)), 4.0);
+                        density = (flare + simplex.fbm(dx * 2.8, dy * 2.8, t * 0.4)) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 20: {
+                        let nx = dx * Math.cos(t * 0.3) - dy * Math.sin(t * 0.3);
+                        let ny = dx * Math.sin(t * 0.3) + dy * Math.cos(t * 0.3);
+                        let nval = Math.sin(nx * 13.5) * Math.cos(ny * 13.5) + Math.sin(modDist * 11.0 - t * 2.5);
+                        density = Math.abs(nval) * 0.5 * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 21: {
+                        let blockX = Math.floor(dx * 8.0 + Math.sin(t * 0.8) * 2.0);
+                        let blockY = Math.floor(dy * 8.0 + Math.cos(t * 0.8) * 2.0);
+                        let glitchNoise = Math.sin(blockX * 12.3 + blockY * 45.6 + t * 3.0);
+                        density = Math.abs(glitchNoise) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 22: {
+                        let animRadius = 0.2 + (Math.sin(globalTime * 1.3) * 0.5 + 0.5) * 0.1;
+                        let eventDist = Math.abs(modDist - animRadius);
+                        let spiralWave = Math.sin(angle * 6.5 + 1.0 / (eventDist + 0.05) - t * 2.0);
+                        density = Math.max(0, spiralWave) * (1.4 - modDist + currentBass * 0.2);
+                        break;
+                    }
+                    case 23: {
+                        let n = simplex.fbm(dx * 4.0, dy * 4.0, t * 0.8, 4);
+                        density = (Math.sin(n * 15.0 + angle * 3.0) * 0.5 + 0.5) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 24: {
+                        let u = dx + Math.sin(t + dy * 4.0) * 0.3;
+                        let v = dy + Math.cos(t + dx * 4.0) * 0.3;
+                        density = (simplex.fbm(u * 5.0, v * 5.0, t * 0.5) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 25: {
+                        let cx = dx * 4.0 + Math.sin(t * 0.5);
+                        let cy = dy * 4.0 + Math.cos(t * 0.5);
+                        let cell = Math.sin(cx * cy + t);
+                        density = Math.abs(cell) * (1.4 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 26: {
+                        let u = Math.cos(angle * 5.0 - t) * modDist;
+                        let v = Math.sin(angle * 5.0 + t) * modDist;
+                        density = (simplex.fbm(u * 4.0, v * 4.0, t * 0.6) + 0.5) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 27: {
+                        let turb = simplex.fbm(dx * 7.0, dy * 7.0, t * 1.0, 3);
+                        let ring = Math.sin(modDist * 15.0 + turb * 5.0 - t * 2.0);
+                        density = Math.max(0, ring) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 28: {
+                        let shiftX = dx * Math.cos(t * 0.4) - dy * Math.sin(t * 0.4);
+                        let shiftY = dx * Math.sin(t * 0.4) + dy * Math.cos(t * 0.4);
+                        density = (simplex.fbm(shiftX * 6.0, shiftY * 6.0, t * 0.7) * 0.5 + 0.5) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 29: {
+                        let gX = Math.floor(dx * 10.0) / 10.0;
+                        let gY = Math.floor(dy * 10.0) / 10.0;
+                        let gl = Math.sin(gX * gY * 50.0 + t * 3.0);
+                        density = Math.abs(gl) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 30: {
+                        let d = modDist * 10.0 - t * 2.0;
+                        let wave = Math.sin(d + Math.sin(angle * 8.0) * 2.0);
+                        density = Math.abs(wave) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 31: {
+                        let u = Math.cos(angle * 3.0 + t * 0.5) * modDist;
+                        let v = Math.sin(angle * 3.0 - t * 0.5) * modDist;
+                        density = (simplex.fbm(u * 4.0, v * 4.0, t * 0.5) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 32: {
+                        let tunnelDepth = (1.0 / (modDist + 0.03)) - t * 2.0;
+                        let u = Math.cos(angle * 6) * 0.4 + tunnelDepth * 0.1;
+                        let v = Math.sin(angle * 6) * 0.4 + tunnelDepth * 0.1;
+                        density = (simplex.fbm(u * 3.5, v * 3.5, t * 0.5) + 0.5) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 33: {
+                        let coreDist = modDist + Math.sin(angle * 5.0 - t * 2.0) * 0.1;
+                        density = (Math.sin(coreDist * 18.0 - t * 3.0) * 0.5 + 0.5) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 34: {
+                        let rad = modDist + Math.sin(angle * 8.0 + t) * 0.15;
+                        let u = Math.cos(angle - t * 0.5) * rad;
+                        let v = Math.sin(angle + t * 0.5) * rad;
+                        density = (simplex.fbm(u * 4.0, v * 4.0, t * 0.6) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 35: {
+                        let helix = Math.sin(angle * 5.0 + modDist * 12.0 - t * 2.5);
+                        density = Math.max(0, helix) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 36: {
+                        let cx = Math.abs(dx * 6.0) % 1.0 - 0.5;
+                        let cy = Math.abs(dy * 6.0) % 1.0 - 0.5;
+                        density = (1.0 - Math.sqrt(cx*cx + cy*cy)) * (Math.cos(t + modDist * 6.0) * 0.5 + 0.5);
+                        break;
+                    }
+                    case 37: {
+                        let torusRad = 0.25 + (Math.cos(globalTime * 1.0) * 0.5 + 0.5) * 0.15 - currentBass * 0.02;
+                        let ringDist = Math.abs(modDist - torusRad);
+                        let wave = Math.cos(angle * 12.0 - t * 3.0) * 0.06;
+                        density = Math.max(0, 1.0 - (ringDist + wave) * 5.0);
+                        break;
+                    }
+                    case 38: {
+                        let u = dx, v = dy;
+                        for(let i=0; i<3; i++) {
+                            let nu = u*u - v*v + dx * 0.3;
+                            let nv = 2.0*u*v + dy * 0.3;
+                            u = nu; v = nv;
+                        }
+                        density = (simplex.fbm(u * 2.5, v * 2.5, t * 0.4) + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 39: {
+                        let warp = (1.0 / (modDist + 0.01)) + t * 3.0;
+                        let ray = Math.sin(angle * 10.0 + warp * 0.4);
+                        density = Math.max(0, ray) * Math.min(1.0, modDist * 1.4);
+                        break;
+                    }
+                    case 40: {
+                        let w1 = Math.cos(modDist * 25.0 - t * 3.5);
+                        let w2 = Math.sin((dx * 8.0 - dy * 8.0) + t * 2.0);
+                        density = ((w1 + w2) / 2.0 + 0.5) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 41: {
+                        let projY = dy / (modDist + 0.15);
+                        let projX = dx / (modDist + 0.15);
+                        let grid = Math.cos(projX * 14.0 - t * 2.0) * Math.sin(projY * 14.0 + t * 2.0);
+                        density = Math.pow(Math.max(0, grid), 2.0) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 42: {
+                        let n1 = simplex.fbm(dx * 6.0, dy * 6.0, t * 1.2, 3);
+                        let arc = Math.abs(Math.cos((n1 - angle) * 8.0));
+                        density = Math.pow(1.0 - arc, 3.0) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 43: {
+                        let qx = Math.floor(dx * 15) / 15;
+                        let qy = Math.floor(dy * 15) / 15;
+                        density = (simplex.fbm(qx * 3.5, qy * 3.5, t * 0.7) + 0.5) * (1.1 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 44: {
+                        let shard = Math.cos(dx * 18.0 - t * 1.8) * Math.sin(dy * 18.0 + t * 1.8);
+                        density = Math.abs(shard) * (1.3 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    case 45: {
+                        let animRadius = 0.15 + (Math.sin(globalTime * 1.5) * 0.5 + 0.5) * 0.25;
+                        let voidDist = Math.abs(modDist - animRadius) + Math.cos(angle * 5 - t * 1.5) * 0.1;
+                        density = 1.0 / (voidDist * 10.0 + 0.3);
+                        break;
+                    }
+                    case 46: {
+                        let wave = Math.cos(modDist * 25.0 + t * 3.0);
+                        density = (wave > 0 ? wave : 0) * (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                    default: {
+                        density = (1.2 - modDist + currentBass * 0.4);
+                        break;
+                    }
+                }
+                return density;
+            }
+            function renderMainCanvas(ctx, imgData, buffer, size, rgb, dt) {
+                if (transitionProgress < 1.0) {
+                    transitionProgress += dt / transitionDuration;
+                    if (transitionProgress > 1.0) transitionProgress = 1.0;
+                }
+                let data = imgData.data;
+                let half = size / 2;
+                let cx = half, cy = half;
+                let idx = 0, bufIdx = 0;
+                let blendFactor = transitionProgress * transitionProgress * (3.0 - 2.0 * transitionProgress);
+                for (let y = 0; y < size; y++) {
+                    let dy = (y - cy) / half;
+                    for (let x = 0; x < size; x++) {
+                        let dx = (x - cx) / half;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        let angle = Math.atan2(dy, dx);
+                        let d1 = getDensity(currentMainMode, dx, dy, dist, angle);
+                        let m1 = getMaskValue(currentMainMode, dx, dy, dist, angle);
+                        let d2 = getDensity(nextMainMode, dx, dy, dist, angle);
+                        let m2 = getMaskValue(nextMainMode, dx, dy, dist, angle);
+                        let density = d1 * (1.0 - blendFactor) + d2 * blendFactor;
+                        let mask = m1 * (1.0 - blendFactor) + m2 * blendFactor;
+                        let patternCutout = Math.sin(density * 20.0 + globalTime * 2.0);
+                        let targetR = 0, targetG = 0, targetB = 0;
+                        if (density > 0.12 && patternCutout > -0.15 && mask > 0.5) {
+                            let toneFactor = Math.min(1.5, density * (1.15 + currentBass * 0.15)); 
+                            targetR = Math.min(255, Math.max(0, rgb[0] * toneFactor));
+                            targetG = Math.min(255, Math.max(0, rgb[1] * toneFactor));
+                            targetB = Math.min(255, Math.max(0, rgb[2] * toneFactor));
+                        } else {
+                            let bgGrain = Math.random() * 2;
+                            targetR = bgGrain; targetG = bgGrain; targetB = bgGrain;
+                        }
+                        let decay = 0.68;
+                        buffer[bufIdx]    = buffer[bufIdx] * decay + targetR * (1.0 - decay);
+                        buffer[bufIdx + 1] = buffer[bufIdx + 1] * decay + targetG * (1.0 - decay);
+                        buffer[bufIdx + 2] = buffer[bufIdx + 2] * decay + targetB * (1.0 - decay);
+                        data[idx]    = buffer[bufIdx];
+                        data[idx + 1] = buffer[bufIdx + 1];
+                        data[idx + 2] = buffer[bufIdx + 2];
+                        data[idx + 3] = 255;
+                        idx += 4; bufIdx += 3;
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+            }
+            let lastTime = performance.now();
+            function render(currentTime) {
+                requestAnimationFrame(render);
+                let dt = (currentTime - lastTime) / 1000;
+                if (dt > 0.1) dt = 0.016;
+                lastTime = currentTime;
+                if (audioInitialized && analyser) {
+                    analyser.getByteFrequencyData(audioDataArray);
+                    let sum = 0;
+                    for (let i = 0; i < 4; i++) sum += audioDataArray[i];
+                    currentBass = (sum / 4) / 255; 
+                } else {
+                    currentBass = 0;
+                }
+                dt = Math.min(dt, 0.1);
+                globalTime += dt * 0.8;
+                rotationAngle = (rotationAngle + dt * (0.4 + currentBass * 0.1)) % (Math.PI * 2);
+                let bassEffect = Math.min(currentBass, 0.5);
+                let colorCycle = (currentTime / 1000) * 15;
+                let dynamicHue = (colorCycle + bassEffect * 30) % 360;
+                let rgb = hslToRgb(dynamicHue / 360, 1.0, 0.58 + bassEffect * 0.05);
+                document.getElementById('mainTitle').style.color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                document.querySelector('.embed-block .main-container').style.borderColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                renderMainCanvas(mainCtx, mainImgData, mainBuffer, 160, rgb, dt);
+                updateTransitionInfo(currentTime);
+            }
+            function hslToRgb(h, s, l) {
+                let r, g, b;
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+                return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+            }
+            requestAnimationFrame(render);
+        </script>
+    </body>
+</html>
