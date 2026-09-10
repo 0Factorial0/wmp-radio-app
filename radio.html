@@ -323,15 +323,18 @@
             scheduleNextTransition();
             function getMaskValue(mode, dx, dy, dist, angle) {
                 if (mode === 6 || mode === 37 || mode === 38) {
-                    let torusRad = 0.4 - currentBass * 0.01;
+                    let torusRad = 0.3 + (Math.sin(globalTime * 1.0) * 0.5 + 0.5) * 0.15 - currentBass * 0.03;
                     let ringDist = Math.abs(dist - torusRad);
-                    let wave = Math.sin(angle * 9.0 + globalTime * 2.5) * 0.08;
+                    let t = globalTime * 1.2;
+                    let wave = Math.sin(angle * 9.0 + t * 2.5) * 0.08;
                     let val = Math.max(0, 1.0 - (ringDist + wave) * 4.0);
                     return val > 0.05 ? 1.0 : val / 0.05;
                 }
                 if (mode === 22 || mode === 45 || mode === 46) {
-                    let eventDist = Math.abs(dist - (0.25 - currentBass * 0.01));
-                    let spiralWave = Math.sin(angle * 6.5 + 1.0 / (eventDist + 0.05) - globalTime * 2.0);
+                    let animRadius = 0.2 + (Math.sin(globalTime * 1.3) * 0.5 + 0.5) * 0.1;
+                    let eventDist = Math.abs(dist - animRadius);
+                    let t = globalTime * 1.2;
+                    let spiralWave = Math.sin(angle * 6.5 + 1.0 / (eventDist + 0.05) - t * 2.0);
                     let val = Math.max(0, spiralWave) * (1.4 - dist);
                     return val > 0.15 ? 1.0 : val / 0.15;
                 }
