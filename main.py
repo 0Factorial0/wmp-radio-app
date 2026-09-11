@@ -10,10 +10,10 @@ if __name__ == '__main__':
     webview.create_window(
         'WMP Battery Radio',
         'radio.html',
-        width=250,
+        width=260,
         height=300,
         resizable=False,
-        min_size=(250, 300),
+        min_size=(260, 300),
         frameless=True,
         easy_drag=True,
         background_color='#0b0b12',
