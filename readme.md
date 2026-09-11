@@ -4,6 +4,7 @@
 
 1. Use start.bat to create desktop shortcuts. It creates two shortcuts with two modes.
 
+<img src="https://raw.githubusercontent.com/0Factorial0/wmp-radio-app/refs/heads/main/images/demo%20(1).png">
 
 free to use
 
