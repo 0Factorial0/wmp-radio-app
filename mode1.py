@@ -9,7 +9,7 @@ except ImportError:
 if __name__ == '__main__':
     webview.create_window(
         'WMP Battery Radio',
-        'radio.html',
+        'mode1.html',
         width=260,
         height=300,
         resizable=False,
@@ -17,6 +17,7 @@ if __name__ == '__main__':
         frameless=True,
         easy_drag=True,
         background_color='#0b0b12',
+        transparent=True,
         on_top=True
     )
     webview.start()
