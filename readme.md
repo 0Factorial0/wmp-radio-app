@@ -2,9 +2,14 @@
 
 ### If you want to add your own radios be aware of the CORS policy, only use direct https mp3s
 
-1. Use start.bat to create desktop shortcuts. It creates two shortcuts with two modes.
+1. Use start.bat to create desktop shortcuts. It creates two shortcuts with two layouts.
 
 <img src="https://raw.githubusercontent.com/0Factorial0/wmp-radio-app/refs/heads/main/images/demo%20(1).png">
+
+<img src="https://raw.githubusercontent.com/0Factorial0/wmp-radio-app/refs/heads/main/images/demo%20(2).png">
+
+<img src="https://raw.githubusercontent.com/0Factorial0/wmp-radio-app/refs/heads/main/images/demo%20(3).png">
+
 
 free to use
 
