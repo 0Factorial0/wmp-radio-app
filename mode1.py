@@ -4,7 +4,7 @@ import sys
 try:
     import webview
 except ImportError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pywebview"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pywebview", "--break-system-packages"])
     import webview
 if __name__ == '__main__':
     webview.create_window(
